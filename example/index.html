@@ -1,0 +1,67 @@
+<!doctype html>
+<head>
+	<meta charset="utf-8">
+</head>
+<body>
+	<p>
+	Client and server share an updatable object called context C, initially set to empty object {}.
+	Server then defines function C.timer(interval), and client defines function C.deep.tick(reason).
+	Once 'Start' below is clicked, client calls C.timer(2000) and server starts to call client's C.deep.tick('tick').
+	Client reports ticks to the bottom of this document.
+	</p>
+	<p>
+	Look at the <a href="server.js">server</a> source, and the <a href="context.js">context</a> source.
+	</p>
+	<p>
+	<a href="test.html">Qunit tests</a>
+	</p>
+	<p>
+	<a href="#" onclick="C.timer(2000); return false;">Start</a> the timer.&nbsp;
+	<a href="#" onclick="C.timer(); return false;">Stop</a> the timer.
+	</p>
+	<script type="text/javascript" src="/socket.io/socket.io.js" charset="utf-8"></script>
+	<script type="text/javascript" charset="utf-8">
+if (!window.console) console = {log: alert};
+console.log('APPLOADED');
+// socket
+var s = io.Context({});
+var C = s.context;
+s.on('connect', function() {
+	console.log('CONNECT');
+});
+s.on('disconnect', function() {
+	console.log('DISCONNECT');
+});
+s.on('reconnect', function() {
+	console.log('RECONNECT');
+});
+s.on('message', function() {
+	console.log('MESSAGE', arguments);
+});
+s.on('invoke', function() {
+	console.log('EVENT:invoke', arguments);
+});
+s.on('ready', function(cb) {
+	console.log('EVENT:ready', arguments);
+try {
+	//debugger;
+	this.update({
+		deep: {
+			tick: function(reason) {
+				var p = document.createElement('p');
+				p.innerHTML = reason || 'ping';
+				document.body.appendChild(p);
+			}
+		}
+	}, null, function(x) {
+console.log('UPDATED', this);
+		//this.context.deep.tick('context set');
+	});
+	cb && cb('OK');
+} catch(err) {
+	console.log('ERRRRR', JSON.stringify(err));
+}
+});
+	</script>
+</body>
+</html>

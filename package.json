@@ -1,0 +1,13 @@
+{
+  "name"          : "socket.io-context",
+  "description"   : "socket.io updatable shared context",
+  "keywords"      : ["websocket", "json-rpc", "bidirectional", "live"],
+  "author"        : "Vladimir Dronnikov <dronnikov@gmail.com>",
+  "contributors"  : [],
+  "dependencies"  : {
+    "socket.io": ">= 0.7"
+  },
+  "lib"           : ".",
+  "main"          : "context.js",
+  "version"       : "0.9.9"
+}
