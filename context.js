@@ -104,7 +104,7 @@ function invoke(path /*, args... */) {
 //
 // perform a deep comparison to check if two objects are equal
 //
-// thanks developmentcloud/underscore
+// thanks documentcloud/underscore
 //
 function deepEqual(a, b) {
 	// check object identity
@@ -263,7 +263,7 @@ function update(changes, options, callback) {
 
 	// emit "change" event
 	if (!options.silent && achanges.length) {
-		this.$emit('change', achanges, ochanges);
+		this.$emit('change', ochanges, achanges);
 		// notify remote end of actual changes
 		if (keys(ochanges).length) {
 			return this.emit('update', ochanges, options, callback);
@@ -349,15 +349,20 @@ if (!io.Manager) {
 		ws.of(options.name).on('connection', function(client) {
 			// create shared context
 			createContext.call(client, options.context);
+			// attach event handlers
 			client.on('disconnect', function() {
 				console.log('DISCONNECTEDDDDD!!! OPERA AGAIN!', arguments);
 				// flush shared context
-				///delete client.context;
+				delete client.context;
 			});
 		});
 
 		// N.B. the rest of logic is left to user code.
 		// just add another event listeners!
+		// E.G. we could fetch the state:
+		//redis.get(client.cid, function(err, result) {
+		//	client.update(result);
+		//});
 
 		// return manager
 		return ws;

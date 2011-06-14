@@ -66,15 +66,26 @@ var http = require('http').createServer(function(req, res) {
 }); http.listen(3000);
 console.log('Listening to http://*:3000. Use Ctrl+C to stop.');
 
+var db = require('redis').createClient();
+
 var io = require('./context.js');
 var ws = io.Context(http, {
-	transports: ['xhr-polling'],
+	//transports: ['xhr-polling'],
 	'log level': 3
 });
 
 ws.sockets.on('connection', function(client) {
 
+	client.cid = 'dvv';
 	console.log('CLIENT', client.context);
+
+	db.get('c/' + client.cid, function(err, result) {
+		if (result) try {
+			result = JSON.parse(result);
+			client.update(result);
+		} catch(err) {
+		}
+	});
 
 	client.update({
 		timer: function(interval) {
@@ -95,6 +106,10 @@ ws.sockets.on('connection', function(client) {
 
 	client.emit('ready', function(x) {
 		console.log('READY CONFIRMED', x, this.id);
+	});
+
+	client.on('change', function(changes) {
+		console.log('CHANGED. NEED TO SAVE UPDATES', this.id, changes);
 	});
 
 });
