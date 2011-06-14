@@ -76,6 +76,7 @@ var ws = io.Context(http, {
 
 ws.sockets.on('connection', function(client) {
 
+	// FIXME: cid should come from session
 	client.cid = 'dvv';
 	console.log('CLIENT', client.context);
 
@@ -103,6 +104,8 @@ ws.sockets.on('connection', function(client) {
 		} catch(err) {}
 		client.on('change', function(changes) {
 			console.log('CHANGED. NEED TO SAVE UPDATES', this.id, changes);
+			// FIXME: prototype should not go to db
+			db.set('c/' + client.cid, JSON.stringify(this.context))
 		});
 		client.emit('ready', function(x) {
 			console.log('READY CONFIRMED', x, this.id);
