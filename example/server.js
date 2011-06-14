@@ -79,14 +79,6 @@ ws.sockets.on('connection', function(client) {
 	client.cid = 'dvv';
 	console.log('CLIENT', client.context);
 
-	db.get('c/' + client.cid, function(err, result) {
-		if (result) try {
-			result = JSON.parse(result);
-			client.update(result);
-		} catch(err) {
-		}
-	});
-
 	client.update({
 		timer: function(interval) {
 			if (!interval && this.interval) {
@@ -104,12 +96,17 @@ ws.sockets.on('connection', function(client) {
 		}
 	});
 
-	client.emit('ready', function(x) {
-		console.log('READY CONFIRMED', x, this.id);
-	});
-
-	client.on('change', function(changes) {
-		console.log('CHANGED. NEED TO SAVE UPDATES', this.id, changes);
+	db.get('c/' + client.cid, function(err, result) {
+		if (result) try {
+			result = JSON.parse(result);
+			client.update(result);
+		} catch(err) {}
+		client.on('change', function(changes) {
+			console.log('CHANGED. NEED TO SAVE UPDATES', this.id, changes);
+		});
+		client.emit('ready', function(x) {
+			console.log('READY CONFIRMED', x, this.id);
+		});
 	});
 
 });

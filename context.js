@@ -222,6 +222,9 @@ function update(changes, options, callback) {
 				if (v == null) {
 					// ...remove the property
 					delete dst[prop];
+					// register change
+					// N.B. `undefined` is pruned from JSON, so let it be `null`
+					ochanges[prop] = null;
 				} else {
 					// update the property.
 					// honor remote functions denoted as THIS_IS_FUNC signatures

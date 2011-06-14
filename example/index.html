@@ -62,6 +62,9 @@ console.log('UPDATED', this);
 	console.log('ERRRRR', JSON.stringify(err));
 }
 });
+s.on('change', function() {
+	console.log('CHANGED', this, arguments);
+});
 	</script>
 </body>
 </html>
