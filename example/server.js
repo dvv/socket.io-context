@@ -70,7 +70,7 @@ var db = require('redis').createClient();
 
 var io = require('./context.js');
 var ws = io.Context(http, {
-	//transports: ['xhr-polling'],
+	//name: '/foo',
 	'log level': 3
 });
 
@@ -78,8 +78,11 @@ ws.sockets.on('connection', function(client) {
 
 	// FIXME: cid should come from session
 	client.cid = 'dvv';
-	console.log('CLIENT', client.context);
+	console.log('CLIENT');//, client.context);
 
+	//
+	// define a function in the context
+	//
 	client.update({
 		timer: function(interval) {
 			if (!interval && this.interval) {
@@ -97,16 +100,25 @@ ws.sockets.on('connection', function(client) {
 		}
 	});
 
+	//
+	// augment the context with client saved state
+	//
 	db.get('c/' + client.cid, function(err, result) {
 		if (result) try {
 			result = JSON.parse(result);
 			client.update(result);
 		} catch(err) {}
+		//
+		// listen to change events and save the client state
+		//
 		client.on('change', function(changes) {
 			console.log('CHANGED. NEED TO SAVE UPDATES', this.id, changes);
 			// FIXME: prototype should not go to db
 			db.set('c/' + client.cid, JSON.stringify(this.context))
 		});
+		//
+		// emit ready event to notify server-side context is ready
+		//
 		client.emit('ready', function(x) {
 			console.log('READY CONFIRMED', x, this.id);
 		});

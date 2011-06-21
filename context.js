@@ -345,7 +345,10 @@ if (!io.Manager) {
 				+ ';\n' +
 				read(__dirname + '/context.js', 'utf8');
 			// TODO: minify!
-			ws.client = script;
+			io.Manager.static.cache['/socket.io.js'] = {
+				content: script,
+				length: script.length
+			};
 		}());
 
 		// level ground logic

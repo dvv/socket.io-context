@@ -4,9 +4,9 @@
 </head>
 <body>
 	<p>
-	Client and server share an updatable object called context C, initially set to empty object {}.
-	Server then defines function C.timer(interval), and client defines function C.deep.tick(reason).
-	Once 'Start' below is clicked, client calls C.timer(2000) and server starts to call client's C.deep.tick('tick').
+	Client and server share an updatable object called context C, initially set to an empty object {}.
+	Upon connection, server defines function C.timer(interval), and client defines function C.deep.tick(reason).
+	Once 'Start' below is clicked, client calls C.timer(2000) and server starts to call client's C.deep.tick('tick') every 2000ms.
 	Client reports ticks to the bottom of this document.
 	</p>
 	<p>
@@ -22,12 +22,13 @@
 	<script type="text/javascript" src="/socket.io/socket.io.js" charset="utf-8"></script>
 	<script type="text/javascript" charset="utf-8">
 if (!window.console) console = {log: alert};
-console.log('APPLOADED');
 // socket
-var s = io.Context({});
+var s = io.Context({
+	//name: '/foo'
+});
 var C = s.context;
 s.on('connect', function() {
-	console.log('CONNECT');
+	console.log('CONNECT', arguments, this);
 });
 s.on('disconnect', function() {
 	console.log('DISCONNECT');
@@ -41,12 +42,22 @@ s.on('message', function() {
 s.on('invoke', function() {
 	console.log('EVENT:invoke', arguments);
 });
+//
+// server reports its part of context is ready
+//
 s.on('ready', function(cb) {
 	console.log('EVENT:ready', arguments);
-try {
-	//debugger;
+	//
+	// augment client side of context
+	//
 	this.update({
+		//
+		// with a deeply
+		//
 		deep: {
+			//
+			// nested function
+			//
 			tick: function(reason) {
 				var p = document.createElement('p');
 				p.innerHTML = reason || 'ping';
@@ -54,13 +65,10 @@ try {
 			}
 		}
 	}, null, function(x) {
-console.log('UPDATED', this);
+		console.log('UPDATED', this);
 		//this.context.deep.tick('context set');
 	});
 	cb && cb('OK');
-} catch(err) {
-	console.log('ERRRRR', JSON.stringify(err));
-}
 });
 s.on('change', function() {
 	console.log('CHANGED', this, arguments);
