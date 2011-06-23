@@ -24,7 +24,7 @@
 if (!window.console) console = {log: alert};
 // socket
 var s = io.Context({
-	//name: '/foo'
+	name: '/foo'
 });
 var C = s.context;
 s.on('connect', function() {

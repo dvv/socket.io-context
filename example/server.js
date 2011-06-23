@@ -68,7 +68,7 @@ console.log('Listening to http://*:3000. Use Ctrl+C to stop.');
 
 var io = require('./context.js');
 var ws = io.Context(http, {
-	//name: '/foo',
+	name: '/foo',
 	'log level': 1
 });
 

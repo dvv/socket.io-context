@@ -360,6 +360,8 @@ if (!io.Manager) {
 		var all = ws.of(options.name).on('connection', function(client) {
 			// create shared context
 			createContext.call(client, options.context);
+			// augment by global context
+			client.update(this.context);
 		});
 		// create global shared context
 		createContext.call(all, options.context);
