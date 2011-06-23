@@ -97,7 +97,8 @@ function get(obj, path) {
 // optional parameters
 //
 function invoke(path /*, args... */) {
-	var context, fn = get(context = this.context, path) || get(context = this.namespace.context, path);
+	var context, fn = get(context = this.context, path) ||
+										get(context = this.namespace.context, path);
 	isCallable(fn) && fn.apply(context, slice.call(arguments, 1));
 }
 
@@ -357,14 +358,16 @@ if (!io.Manager) {
 		}());
 
 		// level ground logic
-		var all = ws.of(options.name).on('connection', function(client) {
+		var all = ws.of(options.name)
+		// create global shared context
+		createContext.call(all, options.context);
+		// upgrade connecting clients to have context
+		all.on('connection', function(client) {
 			// create shared context
 			createContext.call(client, options.context);
 			// augment by global context
 			client.update(this.context);
 		});
-		// create global shared context
-		createContext.call(all, options.context);
 
 		// N.B. the rest of logic is left to user code.
 		// just add another event listeners!
@@ -372,6 +375,9 @@ if (!io.Manager) {
 		//redis.get(client.cid, function(err, result) {
 		//	client.update(result);
 		//});
+
+		// mimick NowJS everyone
+		all.everyone = all;
 
 		// return manager
 		return all;

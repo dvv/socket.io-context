@@ -95,6 +95,9 @@ ws.on('connection', function(client) {
 				}.bind(this), interval);
 				this.deep.tick('timer started');
 			}
+		},
+		updateEveryone: function() {
+			client.namespace.update({'this': 'is available to everyone'});
 		}
 	});
 
@@ -130,6 +133,11 @@ ws.hz = function() {
 	this.emit('message', 'AAA');
 	this.emit('invoke', ['deep','tick'], 'foo');
 	this.update({oops: function(a) {console.error('OOPS', arguments);}});
+};
+ws.e = function() {
+	repl.c().join('aaa');
+	this.in('aaa').emit('message', 'AAA');
+	this.in('aaa').send('UUU');
 };
 
 var repl = require('repl').start('node> ').context;

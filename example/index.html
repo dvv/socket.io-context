@@ -19,6 +19,10 @@
 	<a href="#" onclick="C.timer(2000); return false;">Start</a> the timer.&nbsp;
 	<a href="#" onclick="C.timer(); return false;">Stop</a> the timer.
 	</p>
+	<p>
+	We also can <a href="#" onclick="C.updateEveryone(); return false;">Update</a> everyone's context. This will update all currently connected clients as well as future clients.
+	<a href="#" onclick="alert(C.this); return false;">Check</a> the content of newly set context's `this` property (should equal to 'is available to everyone').
+	</p>
 	<script type="text/javascript" src="/socket.io/socket.io.js" charset="utf-8"></script>
 	<script type="text/javascript" charset="utf-8">
 if (!window.console) console = {log: alert};
