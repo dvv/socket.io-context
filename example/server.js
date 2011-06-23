@@ -66,8 +66,6 @@ var http = require('http').createServer(function(req, res) {
 }); http.listen(3000);
 console.log('Listening to http://*:3000. Use Ctrl+C to stop.');
 
-var db = require('redis').createClient();
-
 var io = require('./context.js');
 var ws = io.Context(http, {
 	//name: '/foo',
@@ -103,6 +101,8 @@ ws.sockets.on('connection', function(client) {
 	//
 	// augment the context with client saved state
 	//
+	try {
+	var db = require('redis').createClient();
 	db.get('c/' + client.cid, function(err, result) {
 		if (result) try {
 			result = JSON.parse(result);
@@ -123,6 +123,7 @@ ws.sockets.on('connection', function(client) {
 			console.log('READY CONFIRMED', x, this.id);
 		});
 	});
+	} catch(err) {}
 
 });
 

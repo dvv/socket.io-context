@@ -347,7 +347,8 @@ if (!io.Manager) {
 			// TODO: minify!
 			io.Manager.static.cache['/socket.io.js'] = {
 				content: script,
-				length: script.length
+				length: script.length,
+				Etag: 'TODO:' + Math.random()
 			};
 		}());
 
