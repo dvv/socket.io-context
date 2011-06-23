@@ -69,10 +69,10 @@ console.log('Listening to http://*:3000. Use Ctrl+C to stop.');
 var io = require('./context.js');
 var ws = io.Context(http, {
 	//name: '/foo',
-	'log level': 3
+	'log level': 1
 });
 
-ws.sockets.on('connection', function(client) {
+ws.on('connection', function(client) {
 
 	// FIXME: cid should come from session
 	client.cid = 'dvv';
@@ -126,12 +126,18 @@ ws.sockets.on('connection', function(client) {
 	} catch(err) {}
 
 });
+ws.hz = function() {
+	this.emit('message', 'AAA');
+	this.emit('invoke', ['deep','tick'], 'foo');
+	this.update({oops: function(a) {console.error('OOPS', arguments);}});
+};
 
 var repl = require('repl').start('node> ').context;
 process.stdin.on('close', process.exit);
 
 repl.ws = ws;
-repl.c = function(){return ws.sockets.sockets[Object.keys(ws.sockets.sockets)[0]];};
+//https://github.com/dvv/socket.io-context/blob/master/context.js#L351
+repl.c = function(){return ws.sockets[Object.keys(ws.sockets)[0]];};
 repl.x = function(){return c().context;};
 repl.u = function(){repl.c().update({baz:3});};
 repl.u0 = function(){repl.c().emit('update', {baz:3});};

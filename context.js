@@ -97,8 +97,8 @@ function get(obj, path) {
 // optional parameters
 //
 function invoke(path /*, args... */) {
-	var fn = get(this, path);
-	isCallable(fn) && fn.apply(this, slice.call(arguments, 1));
+	var context, fn = get(context = this.context, path) || get(context = this.namespace.context, path);
+	isCallable(fn) && fn.apply(context, slice.call(arguments, 1));
 }
 
 //
@@ -289,9 +289,8 @@ function update(changes, options, callback) {
 function createContext(proto) {
 	this.context = proto || {};
 	// attach event handlers
-	//this.on('update', bind(update, this));
 	this.on('update', update);
-	this.on('invoke', bind(invoke, this.context));
+	this.on('invoke', bind(invoke, this));
 	// provide shortcut functions
 	this.update = update;
 	this.invoke = bind(this.emit, this, 'invoke');
@@ -323,6 +322,11 @@ if (!io.Manager) {
 //
 } else {
 
+	// define local events for namespaces
+	require('socket.io/lib/namespace').prototype.$emit = function(name) {
+		return process.EventEmitter.prototype.emit.apply(this, arguments);
+	};
+
 	io.Context = function(server, options) {
 
 		// set default options
@@ -353,16 +357,12 @@ if (!io.Manager) {
 		}());
 
 		// level ground logic
-		ws.of(options.name).on('connection', function(client) {
+		var all = ws.of(options.name).on('connection', function(client) {
 			// create shared context
 			createContext.call(client, options.context);
-			// attach event handlers
-			client.on('disconnect', function() {
-				console.log('DISCONNECTEDDDDD!!! OPERA AGAIN!', arguments);
-				// flush shared context
-				delete client.context;
-			});
 		});
+		// create global shared context
+		createContext.call(all, options.context);
 
 		// N.B. the rest of logic is left to user code.
 		// just add another event listeners!
@@ -372,7 +372,7 @@ if (!io.Manager) {
 		//});
 
 		// return manager
-		return ws;
+		return all;
 	};
 
 	//
