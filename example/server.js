@@ -69,11 +69,11 @@ console.log('Listening to http://*:3000. Use Ctrl+C to stop.');
 var io = require('./context.js');
 var ws = io.Context(http, {
 	name: '/foo',
-	'log level': 1,
+	'log level': 3,
 	authorization: function(data, next) {
 		data.session = {
 			user: {
-				id: 'cid'
+				id: 'dvv'
 			}
 		};
 		next(null, true);
@@ -103,7 +103,7 @@ ws.on('connection', function(client) {
 			}
 		},
 		updateEveryone: function() {
-			client.namespace.update({'this': 'is available to everyone'});
+			client.namespace.update({that: 'is available to everyone'});
 		}
 	});
 
@@ -111,7 +111,8 @@ ws.on('connection', function(client) {
 	// augment the context with client saved state
 	//
 	client.get('handshaken', function(err, data) {
-		//console.error('CONNDATA', data);
+		console.error('CONNDATA', err, data);
+		if (!data) return;
 		var key = 'c/' + data.session.user.id;
 		db.get(key, function(err, result) {
 			if (result) try {

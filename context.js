@@ -97,6 +97,7 @@ function get(obj, path) {
 // optional parameters
 //
 function invoke(path /*, args... */) {
+//console.log('INVOKE:'+path.join('.'));
 	var context, fn = get(context = this.context, path) ||
 										get(context = this.namespace.context, path);
 	isCallable(fn) && fn.apply(context, slice.call(arguments, 1));
@@ -229,6 +230,7 @@ function update(changes, options, callback) {
 				} else {
 					// update the property.
 					// honor remote functions denoted as THIS_IS_FUNC signatures
+//console.log('UPD:' + prop + ':'+v);
 					dst[prop] = v === THIS_IS_FUNC ?
 						bind(self.emit, self, 'invoke', path) :
 						v;
