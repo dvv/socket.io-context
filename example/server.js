@@ -69,14 +69,20 @@ console.log('Listening to http://*:3000. Use Ctrl+C to stop.');
 var io = require('./context.js');
 var ws = io.Context(http, {
 	name: '/foo',
-	'log level': 1
+	'log level': 1,
+	authorization: function(data, next) {
+		data.session = {
+			user: {
+				id: 'cid'
+			}
+		};
+		next(null, true);
+	}
 });
 
-ws.on('connection', function(client) {
+var db = require('redis').createClient();
 
-	// FIXME: cid should come from session
-	client.cid = 'dvv';
-	console.log('CLIENT');//, client.context);
+ws.on('connection', function(client) {
 
 	//
 	// define a function in the context
@@ -104,29 +110,30 @@ ws.on('connection', function(client) {
 	//
 	// augment the context with client saved state
 	//
-	try {
-	var db = require('redis').createClient();
-	db.get('c/' + client.cid, function(err, result) {
-		if (result) try {
-			result = JSON.parse(result);
-			client.update(result);
-		} catch(err) {}
-		//
-		// listen to change events and save the client state
-		//
-		client.on('change', function(changes) {
-			console.log('CHANGED. NEED TO SAVE UPDATES', this.id, changes);
-			// FIXME: prototype should not go to db
-			db.set('c/' + client.cid, JSON.stringify(this.context))
-		});
-		//
-		// emit ready event to notify server-side context is ready
-		//
-		client.emit('ready', function(x) {
-			console.log('READY CONFIRMED', x, this.id);
+	client.get('handshaken', function(err, data) {
+		//console.error('CONNDATA', data);
+		var key = 'c/' + data.session.user.id;
+		db.get(key, function(err, result) {
+			if (result) try {
+				result = JSON.parse(result);
+				client.update(result);
+			} catch(err) {}
+			//
+			// listen to change events and save the client state
+			//
+			client.on('change', function(changes) {
+				console.log('CHANGED. NEED TO SAVE UPDATES', this.id, changes);
+				// FIXME: prototype should not go to db
+				db.set(key, JSON.stringify(this.context))
+			});
+			//
+			// emit ready event to notify server-side context is ready
+			//
+			client.emit('ready', function(x) {
+				console.log('READY CONFIRMED', x, this.id);
+			});
 		});
 	});
-	} catch(err) {}
 
 });
 ws.hz = function() {

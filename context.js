@@ -340,7 +340,6 @@ if (!io.Manager) {
 		// start manager
 		var ws = io.listen(server);
 		extend(ws.settings, options);
-
 		// override default client script
 		(function() {
 			var read = require('fs').readFileSync;
