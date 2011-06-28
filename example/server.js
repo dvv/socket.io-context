@@ -80,7 +80,7 @@ var ws = io.Context(http, {
 	}
 });
 
-var db = require('redis').createClient();
+///var db = require('redis').createClient();
 
 ws.on('connection', function(client) {
 
@@ -110,8 +110,7 @@ ws.on('connection', function(client) {
 	//
 	// augment the context with client saved state
 	//
-	console.error('CONNDATA', err, data);
-	if (!data) return;
+/***
 	var key = 'c/' + data.session.user.id;
 	db.get(key, function(err, result) {
 		if (result) try {
@@ -132,6 +131,11 @@ ws.on('connection', function(client) {
 		client.emit('ready', function(x) {
 			console.log('READY CONFIRMED', x, this.id);
 		});
+	});
+***/
+
+	client.emit('ready', function(x) {
+		console.log('READY CONFIRMED', x, this.id);
 	});
 
 });

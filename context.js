@@ -154,7 +154,6 @@ function deepEqual(a, b) {
 // if `options.silent` is truthy, inhibit firing 'change' event
 //
 function update(changes, options, callback) {
-
 	if (!options) options = {};
 	var self = this;
 	var context = this.context;
