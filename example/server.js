@@ -76,7 +76,7 @@ var ws = io.Context(http, {
 				id: 'dvv'
 			}
 		};
-		next(null, true);
+		next(null, true, true);
 	}
 });
 
@@ -110,29 +110,27 @@ ws.on('connection', function(client) {
 	//
 	// augment the context with client saved state
 	//
-	client.get('handshaken', function(err, data) {
-		console.error('CONNDATA', err, data);
-		if (!data) return;
-		var key = 'c/' + data.session.user.id;
-		db.get(key, function(err, result) {
-			if (result) try {
-				result = JSON.parse(result);
-				client.update(result);
-			} catch(err) {}
-			//
-			// listen to change events and save the client state
-			//
-			client.on('change', function(changes) {
-				console.log('CHANGED. NEED TO SAVE UPDATES', this.id, changes);
-				// FIXME: prototype should not go to db
-				db.set(key, JSON.stringify(this.context))
-			});
-			//
-			// emit ready event to notify server-side context is ready
-			//
-			client.emit('ready', function(x) {
-				console.log('READY CONFIRMED', x, this.id);
-			});
+	console.error('CONNDATA', err, data);
+	if (!data) return;
+	var key = 'c/' + data.session.user.id;
+	db.get(key, function(err, result) {
+		if (result) try {
+			result = JSON.parse(result);
+			client.update(result);
+		} catch(err) {}
+		//
+		// listen to change events and save the client state
+		//
+		client.on('change', function(changes) {
+			console.log('CHANGED. NEED TO SAVE UPDATES', this.id, changes);
+			// FIXME: prototype should not go to db
+			db.set(key, JSON.stringify(this.context))
+		});
+		//
+		// emit ready event to notify server-side context is ready
+		//
+		client.emit('ready', function(x) {
+			console.log('READY CONFIRMED', x, this.id);
 		});
 	});
 
