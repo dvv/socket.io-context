@@ -142,7 +142,7 @@ test('client properly reports changes', function() {
 		ok(cli === this);
 		// N.B. since ochanges go to remote side, we report functions as signatures
 		deepEqual(ochanges, {foo: THIS_IS_FUNC, a: 1, b: {c: {d: 2}}});
-		// N.B. achanges for local use, so functions are functions
+		// N.B. achanges are for local use, so functions are functions
 		deepEqual(achanges, [[['foo'], bar], [['a'],1], [['b', 'c', 'd'],2]]);
 	});
 	cli.update({foo: bar, a: 1, b: {c: {d: 2}}});
@@ -160,4 +160,13 @@ test('client properly reports no changes', function() {
 	});
 	cli.update({a: 1, b: {c: {d: 2}}});
 	deepEqual(cli.context, {a: 1, b: {c: {d: 2}}});
+});
+
+test('client properly executes multiple updates', function() {
+	var cli = this.client;
+	ok(cli.context);
+	cli.update([{a: [1]}, {a: {b: 2}}, {c: console.log}]);
+	deepEqual(cli.context, {a: {b: 2}, c: console.log});
+	cli.update([null, {a: 0}]);
+	deepEqual(cli.context, {a: 0});
 });

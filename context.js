@@ -263,7 +263,7 @@ function update(changes, options, callback) {
 
 	// apply changes
 	if (isArray(changes)) {
-		for (var j = 0; i < changes.length; ++i) {
+		for (var j = 0; j < changes.length; ++j) {
 			// N.B. c === `null` purges the current context
 			if (changes[j] === null) {
 				for (var i in context) delete context[i];
