@@ -209,8 +209,6 @@ function update(changes, options, callback) {
 				// value and destination are null/undefined? just skip
 				if (v == null && d == null) continue;
 				// destination looks like a hash? recursion needed!
-///				if (Object(d) === d && !isArray(d) && !isCallable(d)
-///					&& !isValueArray && !isValueCallable) {
 				if (isHash(d) && isHash(v)) {
 					// make room for real changes
 					if (!has(ochanges, prop)) {
