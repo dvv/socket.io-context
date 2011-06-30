@@ -53,7 +53,7 @@ function bind(func, obj) {
 }
 
 //
-// copies properties of `additional` to `target`
+// copy own properties of `additional` to `target`
 //
 function extend(target, additional) {
 	for (var key in additional) {
@@ -65,7 +65,7 @@ function extend(target, additional) {
 }
 
 //
-// determine loosely if obj is callable
+// determine loosely if `obj` is callable
 //
 function isCallable(obj) {
 	// N.B. RegExp in V8 is also of type 'function'!
@@ -74,7 +74,7 @@ function isCallable(obj) {
 }
 
 //
-// determine loosely if obj looks like a hash
+// determine loosely if `obj` looks like a hash
 //
 function isHash(obj) {
 	return Object(obj) === obj && !isArray(obj) && !isCallable(obj);
@@ -256,7 +256,7 @@ function update(changes, options, callback) {
 		_ext(dst, src, [], ochanges);
 	}
 
-	// purge old properties properties
+	// purge old properties
 	if (options.reset) {
 		for (var i in context) delete context[i];
 	}
@@ -371,7 +371,7 @@ if (!io.Manager) {
 		all.on('connection', function(client) {
 			// create shared context
 			createContext.call(client, options.context);
-			// augment by global context
+			// augment private context with global context
 			client.update(this.context);
 		});
 
@@ -381,9 +381,6 @@ if (!io.Manager) {
 		//redis.get(client.cid, function(err, result) {
 		//	client.update(result);
 		//});
-
-		// mimick NowJS everyone
-		all.everyone = all;
 
 		// return manager
 		return all;
