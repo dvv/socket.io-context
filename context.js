@@ -74,6 +74,13 @@ function isCallable(obj) {
 }
 
 //
+// determine loosely if obj looks like a hash
+//
+function isHash(obj) {
+	return Object(obj) === obj && !isArray(obj) && !isCallable(obj);
+}
+
+//
 // safely get a deep property of `obj` descending using elements
 // in `path`
 //
@@ -174,6 +181,10 @@ function update(changes, options, callback) {
 			for (var prop in src) if (has(src, prop)) {
 				// compose the path to this property
 				var path = root.concat([prop]);
+				// skip immutable properties
+				// N.B. could use ES5 read-only sugar,
+				// but this code must also work in ES3 browsers
+				if (prop.charAt(0) === '_') continue;
 				// cache new value
 				var v = src[prop];
 				var isValueArray = isArray(v);
@@ -183,6 +194,7 @@ function update(changes, options, callback) {
 					// value is array?
 					if (isValueArray) {
 						// ...put its copy, not reference
+						// TODO: should think how to just push/pop
 						v = v.slice();
 					// value is object?
 					} else {
@@ -196,9 +208,10 @@ function update(changes, options, callback) {
 				var d = dst[prop];
 				// value and destination are null/undefined? just skip
 				if (v == null && d == null) continue;
-				// recursion needed?
-				if (Object(d) === d && !isArray(d)
-					&& !isValueArray && !isValueCallable) {
+				// destination looks like a hash? recursion needed!
+///				if (Object(d) === d && !isArray(d) && !isCallable(d)
+///					&& !isValueArray && !isValueCallable) {
+				if (isHash(d) && isHash(v)) {
 					// make room for real changes
 					if (!has(ochanges, prop)) {
 						var newly = true;
@@ -391,7 +404,7 @@ if (!io.Manager) {
 }
 
 // debugging stuff
-io.dump = function() {
+io.dump = function(dummy) {
 	console.log('DUMP', arguments);
 };
 
