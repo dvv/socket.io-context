@@ -2,7 +2,10 @@ var THIS_IS_FUNC = '~-=(){}=-~';
 
 module('context', {
 	setup: function() {
-		this.client = io.Context();
+		this.client = io.Context({
+			'force new connection': true,
+			'reconnect': false
+		});
 	},
 	teardown: function() {
 		this.client.socket.disconnect();
