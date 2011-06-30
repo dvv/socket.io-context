@@ -335,11 +335,6 @@ if (!io.Manager) {
 //
 } else {
 
-	// define local events for namespaces
-	require('socket.io/lib/namespace').prototype.$emit = function(name) {
-		return process.EventEmitter.prototype.emit.apply(this, arguments);
-	};
-
 	io.Context = function(server, options) {
 
 		// set default options
