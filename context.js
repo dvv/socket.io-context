@@ -28,7 +28,7 @@ function has(obj, prop) {
 //
 // get the list of object own properties
 //
-var keys = Object.keys || function(obj) {
+var ownProps = Object.keys || function(obj) {
 	var r = [];
 	if (obj === Object(obj)) {
 		for (var key in obj) if (has(obj, key)) {
@@ -143,8 +143,8 @@ function deepEqual(a, b) {
 	// check for different array lengths before comparing contents
 	if (a.length && (a.length !== b.length)) return false;
 	// nothing else worked, deep compare the contents
-	var aKeys = keys(a);
-	var bKeys = keys(b);
+	var aKeys = ownProps(a);
+	var bKeys = ownProps(b);
 	// different object sizes?
 	if (aKeys.length != bKeys.length) return false;
 	// recursive comparison of contents
@@ -177,7 +177,7 @@ function update(changes, options, callback) {
 	//
 	function deepExtend(dst, src) {
 		function _ext(dst, src, root, ochanges) {
-			if (Object(src) !== src) return dst;
+			if (!isHash(src)) return dst;
 			for (var prop in src) if (has(src, prop)) {
 				// compose the path to this property
 				var path = root.concat([prop]);
@@ -218,12 +218,12 @@ function update(changes, options, callback) {
 //console.error('RECURSE', d, v, path);
 					_ext(d, v, path, ochanges[prop]);
 					// if no real changes occured, drop corresponding key
-					if (newly && !keys(ochanges[prop]).length) {
+					if (newly && !ownProps(ochanges[prop]).length) {
 						delete ochanges[prop];
 					}
 					/*var chg = {};
 					_ext(d, v, path, chg);
-					if (keys(chg).length) ochanges[prop] = chg;*/
+					if (ownProps(chg).length) ochanges[prop] = chg;*/
 					continue;
 				}
 				// test if property is really to be changed
@@ -281,7 +281,7 @@ function update(changes, options, callback) {
 	if (!options.silent && achanges.length) {
 		this.$emit('change', ochanges, achanges);
 		// notify remote end of actual changes
-		if (keys(ochanges).length) {
+		if (ownProps(ochanges).length) {
 			return this.emit('update', ochanges, options, callback);
 		}
 	}

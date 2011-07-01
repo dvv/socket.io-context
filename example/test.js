@@ -165,8 +165,9 @@ test('client properly reports no changes', function() {
 test('client properly executes multiple updates', function() {
 	var cli = this.client;
 	ok(cli.context);
-	cli.update([{a: [1]}, {a: {b: 2}}, {c: console.log}]);
-	deepEqual(cli.context, {a: {b: 2}, c: console.log});
+	function foo() {}
+	cli.update([{a: [1]}, {a: {b: 2}}, {c: foo}]);
+	deepEqual(cli.context, {a: {b: 2}, c: foo});
 	cli.update([null, {a: 0}]);
 	deepEqual(cli.context, {a: 0});
 });
