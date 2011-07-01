@@ -5,10 +5,10 @@
   "author"        : "Vladimir Dronnikov <dronnikov@gmail.com>",
   "contributors"  : [],
   "dependencies"  : {
-    "socket.io": ">= 0.7.5",
+    "socket.io": ">= 0.7.6",
     "socket.io-client": ">= 0.7.3"
   },
   "lib"           : ".",
   "main"          : "context.js",
-  "version"       : "0.9.20"
+  "version"       : "0.9.21"
 }
