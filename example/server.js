@@ -76,11 +76,9 @@ var ws = io.Context(http, {
 				id: 'dvv'
 			}
 		};
-		next(null, true, true);
+		next(null, true);
 	}
 });
-
-///var db = require('redis').createClient();
 
 ws.on('connection', function(client) {
 
@@ -107,58 +105,8 @@ ws.on('connection', function(client) {
 		}
 	});
 
-	//
-	// augment the context with client saved state
-	//
-/***
-	var key = 'c/' + data.session.user.id;
-	db.get(key, function(err, result) {
-		if (result) try {
-			result = JSON.parse(result);
-			client.update(result);
-		} catch(err) {}
-		//
-		// listen to change events and save the client state
-		//
-		client.on('change', function(changes) {
-			console.log('CHANGED. NEED TO SAVE UPDATES', this.id, changes);
-			// FIXME: prototype should not go to db
-			db.set(key, JSON.stringify(this.context))
-		});
-		//
-		// emit ready event to notify server-side context is ready
-		//
-		client.emit('ready', function(x) {
-			console.log('READY CONFIRMED', x, this.id);
-		});
-	});
-***/
-
 	client.emit('ready', function(x) {
 		console.log('READY CONFIRMED', x, this.id);
 	});
 
 });
-ws.hz = function() {
-	this.emit('message', 'AAA');
-	this.emit('invoke', ['deep','tick'], 'foo');
-	this.update({oops: function(a) {console.error('OOPS', arguments);}});
-};
-ws.e = function() {
-	repl.c().join('aaa');
-	this.in('aaa').emit('message', 'AAA');
-	this.in('aaa').send('UUU');
-};
-
-var repl = require('repl').start('node> ').context;
-process.stdin.on('close', process.exit);
-
-repl.ws = ws;
-//https://github.com/dvv/socket.io-context/blob/master/context.js#L351
-repl.c = function(){return ws.sockets[Object.keys(ws.sockets)[0]];};
-repl.x = function(){return c().context;};
-repl.u = function(){repl.c().update({baz:3});};
-repl.u0 = function(){repl.c().emit('update', {baz:3});};
-repl.i = function(){repl.c().invoke('test', function(x){console.log('ACK', arguments);});};
-repl.i0 = function(){repl.c().emit('invoke', 'test', function(x){console.log('ACK', arguments);});};
-repl.s = function(){repl.c().json.send({a:1,b:new Date()});};
