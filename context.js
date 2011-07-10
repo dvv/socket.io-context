@@ -335,6 +335,20 @@ if (!io.Manager) {
 //
 } else {
 
+  //
+	// make websocket transport determine security from Origin:
+  // N.B. call this function when you use stunnel in front of node HTTP
+  // server to handle HTTPS
+  //
+	io.honorOriginForSecurity = function() {
+		require('socket.io/lib/transports/websocket').prototype
+    .isSecure = function () {
+			return (this.socket.encrypted ||
+				(this.req.headers.origin &&
+        this.req.headers.origin.substring(0,6) === 'https:'));
+		};
+	};
+
 	io.Context = function(server, options) {
 
 		// set default options

@@ -38,75 +38,76 @@ var pwd = process.cwd();
 var ENOENT = require('constants').ENOENT;
 
 function mime(url) {
-	if (url.slice(-5) === '.html') return 'text/html';
-	if (url.slice(-4) === '.css') return 'text/css';
-	if (url.slice(-3) === '.js') return 'text/javascript';
-	return 'text/plain';
+  if (url.slice(-5) === '.html') return 'text/html';
+  if (url.slice(-4) === '.css') return 'text/css';
+  if (url.slice(-3) === '.js') return 'text/javascript';
+  return 'text/plain';
 }
 
 var http = require('http').createServer(function(req, res) {
-	if (req.url === '/') req.url = '/index.html';
-	Fs.readFile(pwd + req.url, function(err, data) {
-		if (err) {
-			if (err.errno === ENOENT) {
-				res.writeHead(404);
-				res.end();
-			} else {
-				res.writeHead(500);
-				res.end(err.stack);
-			}
-		} else {
-			res.writeHead(200, {
-				'Content-Type': mime(req.url),
-				'Content-Length': data.length
-			});
-			res.end(data);
-		}
-	});
-}); http.listen(3000);
-console.log('Listening to http://*:3000. Use Ctrl+C to stop.');
+  if (req.url === '/') req.url = '/index.html';
+  Fs.readFile(pwd + req.url, function(err, data) {
+    if (err) {
+      if (err.errno === ENOENT) {
+        res.writeHead(404);
+        res.end();
+      } else {
+        res.writeHead(500);
+        res.end(err.stack);
+      }
+    } else {
+      res.writeHead(200, {
+        'Content-Type': mime(req.url),
+        'Content-Length': data.length
+      });
+      res.end(data);
+    }
+  });
+}); http.listen(8080);
+console.log('Listening to http://*:8080. Use Ctrl+C to stop.');
 
 var io = require('./context.js');
+io.honorOriginForSecurity();
 var ws = io.Context(http, {
-	name: '/foo',
-	'log level': 3,
-	authorization: function(data, next) {
-		data.session = {
-			user: {
-				id: 'dvv'
-			}
-		};
-		next(null, true);
-	}
+  name: '/foo',
+  'log level': 3,
+  authorization: function(data, next) {
+    data.session = {
+      user: {
+        id: 'dvv'
+      }
+    };
+    next(null, true);
+  }
 });
 
 ws.on('connection', function(client) {
 
-	//
-	// define a function in the context
-	//
-	client.update({
-		timer: function(interval) {
-			if (!interval && this.interval) {
-				clearInterval(this.interval);
-				delete this.interval;
-				this.deep.tick('timer stopped');
-				return;
-			}
-			if (interval && !this.interval) {
-				this.interval = setInterval(function() {
-					this.deep.tick('tick');
-				}.bind(this), interval);
-				this.deep.tick('timer started');
-			}
-		},
-		updateEveryone: function() {
-			client.namespace.update({that: 'is available to everyone'});
-		}
-	});
+  //
+  // define a function in the context
+  //
+  client.update({
+    timer: function(interval) {
+      if (!interval && this.interval) {
+        clearInterval(this.interval);
+        delete this.interval;
+        this.deep.tick('timer stopped');
+        return;
+      }
+      if (interval && !this.interval) {
+        this.interval = setInterval(function() {
+          this.deep.tick('tick');
+        }.bind(this), interval);
+        this.deep.tick('timer started');
+      }
+    },
+    updateEveryone: function() {
+      client.namespace.update({that: 'is available to everyone'});
+    }
+  });
 
-	client.emit('ready', function(x) {
-		console.log('READY CONFIRMED', x, this.id);
-	});
+  client.emit('ready', function(x) {
+    console.log('READY CONFIRMED', x, this.id);
+  });
 
 });
